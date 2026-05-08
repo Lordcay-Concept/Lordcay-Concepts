@@ -1,12 +1,13 @@
 export const siteConfig = {
-  name: "Ufere Caleb",
-  title: "Ufere Caleb | Portfolio | Full Stack & AI Developer",
+  name: "Lordcay Concepts",
+  title: "Lordcay Concepts | Portfolio | Full Stack & AI Developer",
   description: "Building exceptional digital experiences across web, mobile, and AI platforms",
   author: {
-    name: "Ufere Caleb", 
+    name: "Lordcay Concepts",
+    developer: "Ufere Caleb - Lead Developer",
     role: "Full Stack & AI Developer",
     bio: "Passionate developer building innovative solutions across e-commerce, AI, fintech, education, and enterprise systems.",
-    email: "uferecaleb@gmail.com", 
+    email: "lordcayconcept@gmail.com", 
   },
   navigation: [
     { name: "Home", href: "/" },

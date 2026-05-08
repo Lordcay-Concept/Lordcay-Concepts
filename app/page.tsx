@@ -12,6 +12,9 @@ export default function Home() {
           <h1 className="text-4xl font-bold sm:text-5xl md:text-6xl lg:text-7xl">
             <span className="gradient-text">{siteConfig.author.name}</span>
           </h1>
+          <p className="text-1xl sm:text-2xl md:text-3xl lg:text-4xl mt-4  text-blue-600">
+            {siteConfig.author.developer}
+          </p>
           <p className="mt-4 text-lg sm:text-xl text-muted-foreground">
             {siteConfig.author.role}
           </p>
