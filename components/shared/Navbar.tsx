@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { Menu, X, Sparkles, Home, FolderGit2, User, Mail } from 'lucide-react';
+import { Menu, X, Home, FolderGit2, User, Mail } from 'lucide-react';
 import { siteConfig } from '@/config/site';
 import { cn } from '@/lib/utils';
 
@@ -17,7 +18,6 @@ const navItems = [
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [activeIndex, setActiveIndex] = useState(0);
   const pathname = usePathname();
 
   useEffect(() => {
@@ -28,7 +28,6 @@ export function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close mobile menu when route changes
   useEffect(() => {
     setIsOpen(false);
   }, [pathname]);
@@ -45,14 +44,21 @@ export function Navbar() {
       >
         <div className="container mx-auto px-4">
           <div className="flex h-16 items-center justify-between">
-            {/* Logo */}
+            {/* Logo with Image */}
             <Link 
               href="/" 
               className="group relative flex items-center gap-2"
             >
-              <div className="relative">
-                <div className="absolute -inset-1 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full blur opacity-0 group-hover:opacity-75 transition duration-500" />
-                <Sparkles className="relative h-6 w-6 text-purple-500 group-hover:rotate-12 transition-transform duration-300" />
+              {/* Logo Image */}
+              <div className="relative w-10 h-10">
+                <Image
+                  src="/Lordcay-Logo.png"
+                  alt="Lordcay Logo"
+                  width={40}
+                  height={40}
+                  className="object-contain group-hover:scale-110 transition-transform duration-300"
+                  priority
+                />
               </div>
               <span className="font-bold text-xl bg-gradient-to-r from-purple-500 to-blue-500 bg-clip-text text-transparent group-hover:scale-105 transition-transform duration-300">
                 {siteConfig.name}
@@ -61,14 +67,13 @@ export function Navbar() {
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center gap-1">
-              {navItems.map((item, index) => {
+              {navItems.map((item) => {
                 const isActive = pathname === item.href;
                 const Icon = item.icon;
                 return (
                   <Link
                     key={item.name}
                     href={item.href}
-                    onMouseEnter={() => setActiveIndex(index)}
                     className={cn(
                       'relative px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300',
                       'hover:bg-gradient-to-r hover:from-purple-500/10 hover:to-blue-500/10',
@@ -85,18 +90,15 @@ export function Navbar() {
                       {item.name}
                     </span>
                     
-                    {/* Active Indicator */}
                     {isActive && (
                       <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full" />
                     )}
                     
-                    {/* Hover Effect */}
                     <span className="absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-r from-purple-500/5 to-blue-500/5" />
                   </Link>
                 );
               })}
               
-              {/* CTA Button */}
               <Link href="/contact">
                 <button className="ml-4 px-5 py-2 rounded-lg bg-gradient-to-r from-purple-500 to-blue-500 text-white text-sm font-medium hover:shadow-lg hover:shadow-purple-500/25 transition-all duration-300 hover:scale-105">
                   Get in Touch
@@ -162,7 +164,6 @@ export function Navbar() {
         </div>
       </nav>
 
-      {/* Spacer to prevent content from hiding under navbar */}
       <div className="h-16" />
     </>
   );

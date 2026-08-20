@@ -12,7 +12,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
 import {
   AlertDialog,
@@ -26,7 +25,21 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Mail, Trash2, Edit, Plus, Eye, Loader2, LogOut } from 'lucide-react';
+import { 
+  Mail, 
+  Trash2, 
+  Edit, 
+  Plus, 
+  Loader2, 
+  LogOut, 
+  Eye, 
+  CheckCircle, 
+  Clock,
+  LayoutGrid,
+  MessageSquare,
+  Users,
+  Briefcase
+} from 'lucide-react';
 
 interface Project {
   _id: string;
@@ -56,6 +69,7 @@ export default function AdminDashboard() {
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; type: string } | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [viewingMessage, setViewingMessage] = useState<Message | null>(null);
   const [formLoading, setFormLoading] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
@@ -199,6 +213,12 @@ export default function AdminDashboard() {
     setIsDialogOpen(true);
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    router.push('/admin/login');
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -211,124 +231,178 @@ export default function AdminDashboard() {
   }
 
   const unreadCount = messages.filter(m => !m.read).length;
+  const featuredCount = projects.filter(p => p.featured).length;
 
   return (
-    <div className="min-h-screen bg-muted/30 py-12 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 py-6 px-3 md:py-12 md:px-4">
       <div className="container max-w-6xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
+        {/* Header - Mobile Optimized */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <div>
-            <h1 className="text-3xl font-bold gradient-text">Admin Dashboard</h1>
-            <p className="text-muted-foreground mt-1">Manage your portfolio content</p>
+            <h1 className="text-2xl md:text-3xl font-bold gradient-text">Dashboard</h1>
+            <p className="text-sm text-muted-foreground">Manage your portfolio content</p>
           </div>
-          {activeTab === 'projects' && (
-            <Button onClick={openAddDialog} className="gap-2">
-              <Plus className="h-4 w-4" /> Add New Project
+          <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+            {activeTab === 'projects' && (
+              <Button onClick={openAddDialog} className="gap-2 flex-1 sm:flex-none" size="sm">
+                <Plus className="h-4 w-4" /> Add Project
+              </Button>
+            )}
+            <Button variant="outline" onClick={handleLogout} className="gap-2 flex-1 sm:flex-none" size="sm">
+              <LogOut className="h-4 w-4" /> Logout
             </Button>
-          )}
-          <Button 
-      variant="outline" 
-      onClick={() => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        router.push('/admin/login');
-      }}
-      className="gap-2"
-    >
-      <LogOut className="h-4 w-4" /> Logout
-    </Button>
+          </div>
         </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full max-w-md grid-cols-2">
-            <TabsTrigger value="projects" className="gap-2">
-              <Edit className="h-4 w-4" /> Projects ({projects.length})
+        {/* Stats Cards - Mobile Friendly */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+          <Card>
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-purple-500/10">
+                <Briefcase className="h-4 w-4 text-purple-500" />
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Projects</p>
+                <p className="text-xl font-bold">{projects.length}</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-blue-500/10">
+                <MessageSquare className="h-4 w-4 text-blue-500" />
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Messages</p>
+                <p className="text-xl font-bold">{messages.length}</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-green-500/10">
+                <CheckCircle className="h-4 w-4 text-green-500" />
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Featured</p>
+                <p className="text-xl font-bold">{featuredCount}</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-orange-500/10">
+                <Clock className="h-4 w-4 text-orange-500" />
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Unread</p>
+                <p className="text-xl font-bold">{unreadCount}</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="projects" className="gap-2 text-xs sm:text-sm">
+              <Briefcase className="h-4 w-4" /> Projects
             </TabsTrigger>
-            <TabsTrigger value="messages" className="gap-2">
-              <Mail className="h-4 w-4" /> Messages {unreadCount > 0 && `(${unreadCount})`}
+            <TabsTrigger value="messages" className="gap-2 text-xs sm:text-sm">
+              <MessageSquare className="h-4 w-4" /> Messages {unreadCount > 0 && `(${unreadCount})`}
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="projects" className="space-y-4">
+          {/* Projects Tab */}
+          <TabsContent value="projects">
             <Card>
-              <CardHeader>
-                <CardTitle>All Projects</CardTitle>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base sm:text-lg">All Projects</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  {projects.map((project) => (
-                    <div key={project._id} className="flex justify-between items-center p-4 border rounded-lg hover:shadow-md transition-all">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h3 className="font-semibold">{project.title}</h3>
-                          {project.featured && <Badge className="gradient-bg">Featured</Badge>}
-                          <Badge variant="outline">{project.category}</Badge>
+                {projects.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Briefcase className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                    <p>No projects yet. Click "Add Project" to create one.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {projects.map((project) => (
+                      <div key={project._id} className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 p-3 sm:p-4 border rounded-lg hover:shadow-md transition-all bg-background">
+                        <div className="flex-1 w-full sm:w-auto">
+                          <div className="flex flex-wrap items-center gap-2 mb-1">
+                            <h3 className="font-semibold text-sm sm:text-base">{project.title}</h3>
+                            {project.featured && <Badge className="text-xs bg-gradient-to-r from-purple-500 to-blue-500">Featured</Badge>}
+                            <Badge variant="outline" className="text-xs">{project.category}</Badge>
+                          </div>
+                          <p className="text-xs sm:text-sm text-muted-foreground line-clamp-1">{project.description}</p>
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {project.technologies.slice(0, 3).map((tech) => (
+                              <span key={tech} className="text-[10px] bg-muted px-2 py-0.5 rounded">
+                                {tech}
+                              </span>
+                            ))}
+                            {project.technologies.length > 3 && (
+                              <span className="text-[10px] text-muted-foreground">+{project.technologies.length - 3}</span>
+                            )}
+                          </div>
                         </div>
-                        <p className="text-sm text-muted-foreground line-clamp-1">{project.description}</p>
-                        <div className="flex flex-wrap gap-1 mt-2">
-                          {project.technologies.slice(0, 3).map((tech) => (
-                            <span key={tech} className="text-xs bg-muted px-2 py-0.5 rounded">
-                              {tech}
-                            </span>
-                          ))}
+                        <div className="flex gap-1 w-full sm:w-auto justify-end">
+                          <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => openEditDialog(project)}>
+                            <Edit className="h-3 w-3" />
+                          </Button>
+                          <Button variant="destructive" size="icon" className="h-8 w-8" onClick={() => setDeleteTarget({ id: project._id, type: 'projects' })}>
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
                         </div>
                       </div>
-                      <div className="flex gap-2 ml-4">
-                        <Button variant="outline" size="sm" onClick={() => openEditDialog(project)}>
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button variant="destructive" size="sm" onClick={() => setDeleteTarget({ id: project._id, type: 'projects' })}>
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                  {projects.length === 0 && (
-                    <div className="text-center py-8 text-muted-foreground">
-                      No projects yet. Click "Add New Project" to create one.
-                    </div>
-                  )}
-                </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
 
-          <TabsContent value="messages" className="space-y-4">
+          {/* Messages Tab */}
+          <TabsContent value="messages">
             <Card>
-              <CardHeader>
-                <CardTitle>Contact Messages</CardTitle>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base sm:text-lg">Contact Messages</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  {messages.map((message) => (
-                    <div key={message._id} className={`p-4 border rounded-lg transition-all ${!message.read ? 'bg-primary/5 border-primary/20' : ''}`}>
-                      <div className="flex justify-between items-start mb-2">
-                        <div>
-                          <h3 className="font-semibold">{message.name}</h3>
-                          <p className="text-sm text-muted-foreground">{message.email}</p>
-                        </div>
-                        <div className="flex gap-2">
-                          {!message.read && (
-                            <Button variant="outline" size="sm" onClick={() => handleMarkAsRead(message._id)}>
-                              Mark as Read
+                {messages.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Mail className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                    <p>No messages yet.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {messages.map((message) => (
+                      <div key={message._id} className={`p-3 sm:p-4 border rounded-lg transition-all ${!message.read ? 'bg-primary/5 border-primary/20' : ''}`}>
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-2">
+                          <div>
+                            <h3 className="font-semibold text-sm sm:text-base">{message.name}</h3>
+                            <p className="text-xs sm:text-sm text-muted-foreground">{message.email}</p>
+                          </div>
+                          <div className="flex gap-1 w-full sm:w-auto">
+                            {!message.read && (
+                              <Button variant="outline" size="sm" className="text-xs h-8" onClick={() => handleMarkAsRead(message._id)}>
+                                <CheckCircle className="h-3 w-3 mr-1" /> Read
+                              </Button>
+                            )}
+                            <Button variant="destructive" size="icon" className="h-8 w-8" onClick={() => setDeleteTarget({ id: message._id, type: 'messages' })}>
+                              <Trash2 className="h-3 w-3" />
                             </Button>
-                          )}
-                          <Button variant="destructive" size="sm" onClick={() => setDeleteTarget({ id: message._id, type: 'messages' })}>
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                          </div>
                         </div>
+                        <p className="text-xs sm:text-sm mt-2 bg-muted/30 p-2 rounded">{message.message}</p>
+                        <p className="text-[10px] text-muted-foreground mt-2">
+                          {new Date(message.createdAt).toLocaleString()}
+                        </p>
                       </div>
-                      <p className="text-sm mt-2">{message.message}</p>
-                      <p className="text-xs text-muted-foreground mt-2">
-                        {new Date(message.createdAt).toLocaleString()}
-                      </p>
-                    </div>
-                  ))}
-                  {messages.length === 0 && (
-                    <div className="text-center py-8 text-muted-foreground">
-                      No messages yet.
-                    </div>
-                  )}
-                </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -336,56 +410,61 @@ export default function AdminDashboard() {
 
         {/* Add/Edit Project Dialog */}
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-4">
             <DialogHeader>
-              <DialogTitle>{editingProject ? 'Edit Project' : 'Add New Project'}</DialogTitle>
+              <DialogTitle className="text-lg">{editingProject ? 'Edit Project' : 'Add New Project'}</DialogTitle>
             </DialogHeader>
-            <div className="space-y-4 py-4">
+            <div className="space-y-3 py-2">
               <div>
-                <Label>Title</Label>
+                <Label className="text-sm">Title</Label>
                 <Input
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   placeholder="Project title"
+                  className="mt-1"
                 />
               </div>
               <div>
-                <Label>Description</Label>
+                <Label className="text-sm">Description</Label>
                 <Textarea
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="Project description"
                   rows={3}
+                  className="mt-1"
                 />
               </div>
               <div>
-                <Label>Technologies (comma-separated)</Label>
+                <Label className="text-sm">Technologies (comma-separated)</Label>
                 <Input
                   value={formData.technologies}
                   onChange={(e) => setFormData({ ...formData, technologies: e.target.value })}
-                  placeholder="React, Next.js, MongoDB, etc."
+                  placeholder="React, Next.js, MongoDB"
+                  className="mt-1"
                 />
               </div>
               <div>
-                <Label>Live URL</Label>
+                <Label className="text-sm">Live URL</Label>
                 <Input
                   value={formData.liveUrl}
                   onChange={(e) => setFormData({ ...formData, liveUrl: e.target.value })}
                   placeholder="https://example.com"
+                  className="mt-1"
                 />
               </div>
               <div>
-                <Label>GitHub URL</Label>
+                <Label className="text-sm">GitHub URL</Label>
                 <Input
                   value={formData.githubUrl}
                   onChange={(e) => setFormData({ ...formData, githubUrl: e.target.value })}
                   placeholder="https://github.com/username/repo"
+                  className="mt-1"
                 />
               </div>
               <div>
-                <Label>Category</Label>
+                <Label className="text-sm">Category</Label>
                 <select
-                  className="w-full p-2 rounded-md border bg-background"
+                  className="w-full p-2 rounded-md border bg-background mt-1"
                   value={formData.category}
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                 >
@@ -397,7 +476,7 @@ export default function AdminDashboard() {
                   <option>Mobile</option>
                 </select>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 pt-1">
                 <input
                   type="checkbox"
                   id="featured"
@@ -405,19 +484,19 @@ export default function AdminDashboard() {
                   onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
                   className="w-4 h-4"
                 />
-                <Label htmlFor="featured">Feature this project</Label>
+                <Label htmlFor="featured" className="text-sm cursor-pointer">Feature this project</Label>
               </div>
             </div>
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
-              <Button onClick={editingProject ? handleUpdateProject : handleAddProject} disabled={formLoading}>
+            <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 mt-4">
+              <Button variant="outline" onClick={() => setIsDialogOpen(false)} className="w-full sm:w-auto">Cancel</Button>
+              <Button onClick={editingProject ? handleUpdateProject : handleAddProject} disabled={formLoading} className="w-full sm:w-auto">
                 {formLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : (editingProject ? 'Update' : 'Create')}
               </Button>
             </div>
           </DialogContent>
         </Dialog>
 
-        {/* Delete Confirmation Dialog */}
+        {/* Delete Confirmation */}
         <AlertDialog open={!!deleteTarget} onOpenChange={() => setDeleteTarget(null)}>
           <AlertDialogContent>
             <AlertDialogHeader>
